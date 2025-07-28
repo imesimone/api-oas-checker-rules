@@ -1,0 +1,32 @@
+rules:
+  boolean-not-null:
+    description: I booleani non devono ammettere null
+    severity: error
+    given: "$..[?(@.type && @.type.includes('boolean'))]"
+    then:
+      function: schema
+      functionOptions:
+        schema:
+          not:
+            type: ["boolean", "null"]
+
+  array-not-null:
+    description: Gli array non devono essere nullable
+    severity: error
+    given: "$..[?(@.type && @.type.includes('array'))]"
+    then:
+      function: schema
+      functionOptions:
+        schema:
+          not:
+            type: [ "array", "null" ]
+
+  enum-no-null:
+    description: Le enum non devono contenere valori nulli
+    severity: error
+    given: "$..[?(@.enum)]"
+    then:
+      function: pattern
+      field: enum
+      functionOptions:
+        notMatch: "\\bnull\\b"

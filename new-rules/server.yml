@@ -1,0 +1,9 @@
+rules:
+  all-servers-use-https:
+    description: "Each server URL must use HTTPS"
+    severity: error
+    given: $.servers[*].url
+    then:
+      function: pattern
+      functionOptions:
+        match: "^https://"

@@ -1,0 +1,92 @@
+rules:
+  use-problem-schema-full:
+    description: |-
+      Validates that every error response using RFC 7807 media-types
+      (`application/problem+json` or `application/problem+xml`)
+      exposes a schema conforming to the PDND Problem profile
+      (superset of RFC 7807, per RAC_REST_NAME_008).
+
+      REQUIRED properties: `type`, `title`, `status`, `detail`
+      OPTIONAL properties: `instance`
+      Custom extension fields are allowed.
+
+      The rule automatically resolves `$ref`, so the schema may live
+      in `components.schemas`.
+
+    message: "[RFC7807] Non-compliant Problem schema detected at {{path}}"
+    formats: [oas3]
+    severity: error
+    recommended: true
+
+    given: >-
+      $.paths[*][*].responses[?(@property.match(/^(4|5|default)$/) && !@["x-noqa"])]
+        .content[?(@property.match(/application\/problem\+json|application\/problem\+xml/))]
+        .schema
+
+    then:
+      function: schema
+      functionOptions:
+        schema:
+          type: object
+          required: [type, title, status, detail]
+          properties:
+            type:
+              type: string
+              format: uri
+            title:
+              type: string
+            status:
+              type: integer
+              minimum: 100
+              maximum: 599
+            detail:
+              type: string
+            instance:
+              type: string
+              format: uri
+          additionalProperties: true  # custom extensions allowed
+
+  problem-json-required-for-errors:
+    description: |-
+      All error responses (4xx, 5xx, default) MUST expose media-type
+      `application/problem+json` (RAC_REST_NAME_008 §4.2.8).
+    message: 'Response {{property}} is missing media-type application/problem+json'
+    formats: [oas3]
+    severity: error
+    recommended: true
+
+    given: $.paths[*][*].responses[?(@property.match(/^(4|5|default)$/))]
+    then:
+      field: content
+      function: truthy
+      functionOptions:
+        path: /application\/problem\+json
+
+  must-have-415-for-unsupported:
+    description: |
+      Operations with a requestBody SHOULD document HTTP 415
+      (Unsupported Media Type) for invalid Content-Type.
+    message: 'Operation at {{path}} lacks response 415'
+    severity: warn
+    formats: [oas3]
+    given: $.paths[*][*][?(@.requestBody)]
+    then:
+      function: truthy
+      field: responses
+      functionOptions:
+        path: /415
+
+  must-have-422-for-unprocessable:
+    description: |
+      Operations with a requestBody SHOULD document HTTP 422
+      (Unprocessable Entity) for semantic validation errors,
+      as recommended by RAC_REST_NAME_008.
+    message: 'Operation at {{path}} lacks response 422'
+    severity: warn
+    formats: [oas3]
+    given: $.paths[*][*][?(@.requestBody)]
+    then:
+      function: truthy
+      field: responses
+      functionOptions:
+        path: /422

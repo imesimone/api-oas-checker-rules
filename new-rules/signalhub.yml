@@ -1,0 +1,94 @@
+rules:
+  pseudonymization-contract-required:
+    description: >
+      `/pseudonymization` MUST exist and follow the current contract
+      (GET with no parameters, single 200 response containing seed and
+      cryptoHashFunction). Any divergence is an **error**.
+    message: '`/pseudonymization` does not respect the current contract at {{path}}.'
+    severity: error
+    formats: [oas3]
+
+    given: $.paths['/pseudonymization']
+    then:
+      function: schema
+      functionOptions:
+        schema:
+          type: object
+          required: [get]
+          additionalProperties: false
+          properties:
+            get:
+              type: object
+              required: [summary, description, responses]
+              additionalProperties: false      # NO parameters, NO extra stuff
+              properties:
+                summary:
+                  const: Gets a pseudonymization info
+                description:
+                  const: Info about crypto hash function and seed
+                responses:
+                  type: object
+                  required: ["200"]
+                  additionalProperties: false  # NO other status codes
+                  properties:
+                    "200":
+                      type: object
+                      required: [description, content]
+                      additionalProperties: false
+                      properties:
+                        description: { const: Success }
+                        content:
+                          type: object
+                          required: [application/json]
+                          additionalProperties: false
+                          properties:
+                            application/json:
+                              type: object
+                              required: [schema]           # niente description qui
+                              additionalProperties: false
+                              properties:
+                                schema:
+                                  type: object
+                                  required: [type, properties, required, description]
+                                  additionalProperties: false
+                                  properties:
+                                    type: { const: object }
+                                    description: { const: Success }
+                                    properties:
+                                      type: object
+                                      required: [seed, cryptoHashFunction]
+                                      additionalProperties: false
+                                      properties:
+                                        seed:
+                                          type: object
+                                          required: [type, example]
+                                          additionalProperties: false
+                                          properties:
+                                            type:    { const: string }
+                                            example: { const: 3b9942ce-1f07-4512-8f34-f31b1a7b0061 }
+                                        cryptoHashFunction:
+                                          type: object
+                                          required: [type, example]
+                                          additionalProperties: false
+                                          properties:
+                                            type:    { const: string }
+                                            example: { const: sha256 }
+                                    required:
+                                      type: array
+                                      minItems: 2
+                                      maxItems: 2
+                                      items:
+                                        enum: [seed, cryptoHashFunction]
+
+  pseudonymization-contract-delta:
+    description: >
+      Warn when the query parameter `signalId`
+      is **missing** from `/pseudonymization`.
+    severity: warn
+    formats: [oas3]
+    given: $.paths['/pseudonymization'].get
+    then:
+      field: parameters
+      function: truthy
+      functionOptions:
+        path: "[?(@.name=='signalId')]"

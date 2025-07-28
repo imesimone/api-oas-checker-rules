@@ -1,0 +1,13 @@
+rules:
+  status-get-no-auth:
+    description: >-
+      Ensure that the GET operation on `/status` does not require any
+      authentication (the `security` property must be absent or empty).
+    message: >-
+      The GET operation {{path}} must not define a `security` property.
+    severity: error
+    recommended: true
+    given: "$.paths['/status'].get"
+    then:
+      field: security
+      function: falsy

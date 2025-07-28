@@ -9,7 +9,7 @@ RULESET_VERSION ?= 0.1
 UID=$(shell id -u)
 GID=$(shell id -g)
 
-RULE_FILES := spectral.yml spectral-full.yml spectral-security.yml spectral-generic.yml spectral-modi.yml
+RULE_FILES := spectral.yml spectral-full.yml spectral-security.yml spectral-generic.yml spectral-modi.yml spectral-new-profile.yml
 RULESET_DIR := rulesets
 FUNCTIONS_DIR:= $(RULESET_DIR)/functions
 
@@ -90,6 +90,20 @@ spectral-modi.yml: $(wildcard ./rules/*.yml)
 		-e RULESET_FILE_NAME=$(RULESET_DIR)/$@\
 		-e TEMPLATE_FILE=rules/rules-template.yml.template\
 		-e CONFIG_FILE=override/spectral-modi-override.yml\
+		python:3.11-alpine\
+		sh -c "python -m venv /tmp/venv; source /tmp/venv/bin/activate; pip install -r requirements.txt && python builder.py"
+
+spectral-new-profile.yml: $(wildcard ./rules/*.yml)
+	docker run --rm\
+		--user ${UID}:${GID} \
+		-v "$(CURDIR)":/app\
+		-w /app\
+		-e RULES_FOLDERS=rules/,security/,new-rules/\
+		-e RULESET_NAME="Italian Guidelines New"\
+		-e RULESET_VERSION=${RULESET_VERSION}\
+		-e RULESET_FILE_NAME=$(RULESET_DIR)/$@\
+		-e TEMPLATE_FILE=rules/rules-template.yml.template\
+		-e CONFIG_FILE=override/spectral-new-profile-override.yml\
 		python:3.11-alpine\
 		sh -c "python -m venv /tmp/venv; source /tmp/venv/bin/activate; pip install -r requirements.txt && python builder.py"
 

@@ -1,0 +1,65 @@
+rules:
+  skip:
+    - has-termsOfService
+    - has-x-api-id
+    - has-x-summary
+    - hint-problem-schema
+    - patch-json-patch-mediatype
+    - problem-json-required-for-errors
+    - use-problem-schema
+    - use-recommended-names-in-parameters
+    - use-recommended-names-in-schemas
+    - use-semver
+    - servers-use-https
+    - sec-securitySchemes-oauth-http
+    - sec-securitySchemes-oauth-allowed-flows
+    - sec-securitySchemes-oauth
+    - sec-apikeys-url
+    - sec-apikeys-cookie
+    - sec-credentials-parameters
+    - sec-auth-insecure-schemes
+    - sec-protection-global-unsafe
+    - sec-protection-global-unsafe-strict
+    - sec-protection-global-safe
+
+  override:
+    cache-responses-undocumented:
+      severity: hint
+    cache-responses-indeterminate-behavior:
+      severity: error
+    servers-description:
+      severity: hint
+    missing-retry-after:
+      severity: error
+    http-request-DELETE-no-body:
+      severity: error
+    http-response-content-2xx:
+      severity: error
+    paths-http-method:
+      severity: hint
+    missing-ratelimit:
+      severity: error
+    response-with-json-object:
+      severity: hint
+    sec-protection-global-safe:
+      severity: error
+    paths-kebab-case:
+      severity: hint
+    schema-camel-case:
+      severity: hint
+    sec-securitySchemes-jwt:
+      severity: info
+    sec-no-default-additionalProperties:
+      severity: hint
+    sec-no-additionalProperties:
+      severity: hint
+    sec-constrained-additionalProperties:
+      severity: hint
+    sec-array-boundaries:
+      severity: hint
+    sec-number-boundaries:
+      severity: hint
+    sec-string-maxlength:
+      severity: hint
+    sec-string-pattern-or-format-or-enum:
+      severity: hint

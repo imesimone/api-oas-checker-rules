@@ -1,0 +1,43 @@
+rules:
+  sec-bearer-auth-strict:
+    description: "Only HTTP Bearer authentication with JWT format is allowed."
+    message: 'Only `http` type with `scheme: bearer` and `bearerFormat: JWT` is allowed.'
+    severity: error
+    formats:
+      - oas3
+    given: $.components.securitySchemes[*]
+    then:
+      function: schema
+      functionOptions:
+        schema:
+          type: object
+          required: [ type, scheme, bearerFormat ]
+          properties:
+            type:
+              const: http
+            scheme:
+              const: bearer
+            bearerFormat:
+              const: JWT
+          additionalProperties: true
+  sec-protection-all-methods:
+    description: >
+      All operations (safe and unsafe) must be protected by a `security` rule
+      either at operation or global level. If a method is intended to be public,
+      it must explicitly declare an empty `security: []` array.
+    message: The operation {{path}} is not protected by a `security` rule.
+    severity: error
+    given: $
+    then:
+      - function: checkSecurity
+        functionOptions:
+          schemesPath:
+            - securitySchemes
+          nullable: false
+          methods:
+            - get
+            - head
+            - post
+            - put
+            - patch
+            - delete
