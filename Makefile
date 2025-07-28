@@ -19,7 +19,7 @@ clean:
 	rm -rf $(RULESET_DIR)
 	rm -rf $(FUNCTIONS_DIR)
 
-rules: prepare_dir spectral.yml spectral-generic.yml spectral-security.yml spectral-full.yml spectral-modi.yml
+rules: prepare_dir spectral.yml spectral-generic.yml spectral-security.yml spectral-full.yml spectral-modi.yml spectral-new-profile.yml
 
 prepare_dir: clean
 	mkdir -p $(RULESET_DIR)
